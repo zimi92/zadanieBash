@@ -31,10 +31,10 @@ EOF
 
 }
 
-my_exit () { rm $system_info_file; exit 0; }
+wyjdz () { rm $system_info_file; exit 0; }
 
 # =================================== system info ========================================
-function system_info {
+function informacjeOSystemie {
 
     test -f $system_info_file && echo "Usuniecie istniejacego pliku ${system_info_file}";
     echo "Tworzenie pliku ${system_info_file}"
@@ -65,7 +65,7 @@ EOF
     echo "Zapisano informacje o systemie"
 }
 
-function display_info {
+function wyswietlInformacje {
 
     if [ -f $system_info_file ]; then
         cat $system_info_file
@@ -80,25 +80,25 @@ function display_info {
 
 # =================================== grupa /user ========================================
 
-function group_exists {
+function instniejacaGrupa {
     awk -F: '{print $1}' /etc/group| grep -w $1 &>/dev/null
     return $?
 }
 
-function user_exists {
+function instniejacyUser {
     awk -F: '{print $1}' /etc/passwd | grep -w $1 &>/dev/null
     return $?
 }
 
-function add_group {
+function dodajGrupe {
     if [ $userid -ne 0 ]; then
-	echo "Niewystarczajace uprawnienia"
-	sleep $delay_time
-	return 0
+	    echo "Niewystarczajace uprawnienia"
+	    sleep $delay_time
+	    return 0
     fi
 
     read -p "Podaj nazwę grupy: " grupa
-    group_exists $grupa && { echo "Grupa $grupa istnieje"; sleep $delay_time; return 1; }
+    instniejacaGrupa $grupa && { echo "Grupa $grupa istnieje"; sleep $delay_time; return 1; }
     addgroup $grupa
     if [ $? -eq 0 ]; then
         echo "Utworzono grupę $grupa"
@@ -107,32 +107,32 @@ function add_group {
     fi
 }
 
-function add_user {
+function dodajUsera {
     if [ $userid -ne 0 ]; then 
 	echo "Niewystarczajace uprawnienia"
 	sleep $delay_time
 	return 0	
     fi
     read -p "Podaj nazwę uzytkownika: " user
-    user_exists $user
+    instniejacyUser $user
     while [ $? -ne 1 ]
     do 
         echo "Uzytkownik $user istnieje"
         sleep 1
         clear
         read -p "Podaj nazwę uzytkownika: " user
-        user_exists $user
+        instniejacyUser $user
     done
 
     read -p "Podaj nazwę grupy: " grupa
-    group_exists $grupa
+    instniejacaGrupa $grupa
     while [ $? -ne 0 ]
     do 
         echo "Grupa $grupa nie istnieje"
         sleep 1
         clear
         read -p "Podaj nazwę grupy: " grupa
-        group_exists $grupa
+        instniejacaGrupa $grupa
     done
     
     if [ -n "$user" ] && [ -n "$grupa" ]
@@ -143,8 +143,6 @@ function add_user {
         echo "Utworzono użytkownika $user"
         sleep $delay_time
         return 0
-    else 
-	echo "Niewystarczajace uprawnienia (uzyj sudo?)"
     fi
 
 }
@@ -153,7 +151,7 @@ function add_user {
 
 # =================================== parsowanie pliku====================================
 
-function dir_empty {
+function pustaScierzka {
     
     [ -d "$1" ] || {
         echo "Tworzenie katalogu $1";
@@ -168,7 +166,7 @@ function dir_empty {
     fi
 }
 
-function work_on_dir {
+function pracujWKatalgou {
 
     test -d "$1" || { return 1; }
 
@@ -216,9 +214,9 @@ function work_on_dir {
     fi
 }
 
-function do_file {
+function stworzKatalog {
 
-    dir_empty $dl_dir
+    pustaScierzka $dl_dir
     if [ $? -ne 0 ]; then
         read -p "Katalog $dl_dir nie jest pusty. Usunąc go? [Y/N]: " wybor
 
@@ -235,25 +233,25 @@ function do_file {
     output_file=${dl_dir}/plik.tar
     wget $url -O $output_file &>/dev/null
     cd $dl_dir; tar -xf $output_file
-    work_on_dir "${dl_dir}/linuxlab"
+    pracujWKatalgou "${dl_dir}/linuxlab"
 }
 
 # =================================== parsowanie pliku====================================
 
 until [ "$opcja" -eq "0" ]; do
 	case "$opcja" in
-		"1") system_info 
+		"1") informacjeOSystemie 
             ;;
-		"2") display_info
+		"2") wyswietlInformacje
             ;;
-		"3") add_group
+		"3") dodajGrupe
             ;;
-		"4") add_user
+		"4") dodajUsera
             ;;
-		"5") do_file
+		"5") stworzKatalog
             ;;
 
-		"0") my_exit
+		"0") wyjdz
             ;;
 
 	esac
@@ -261,4 +259,4 @@ until [ "$opcja" -eq "0" ]; do
     read -n1 -s opcja
 done
 
-my_exit
+wyjdz
