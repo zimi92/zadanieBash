@@ -193,6 +193,11 @@ function dodajGrupe {
     fi
 }
 
+function szukajWkatalogu{
+	read -p "podaj szukana fraze " fraza
+	echo rgrep $fraza .
+}
+
 function dodajUsera {
     if [ $userid -ne 0 ]; then 
 	echo "Niewystarczajace uprawnienia"
@@ -241,7 +246,7 @@ until [ "$wybor" -eq "0" ]; do
                     wyswietlInformacje
             ;;
 		"3") clear
-	             dodajGrupe
+					dodajGrupe
             ;;
 		"4")clear 
                     dodajUsera
@@ -249,6 +254,8 @@ until [ "$wybor" -eq "0" ]; do
 		"5")clear 
                     stworzKatalog
             ;;
+		"6" clear
+					szukajWkatalogu
 
 		"0") wyjdz
             ;;
