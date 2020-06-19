@@ -1,14 +1,39 @@
 #!/bin/bash
 
-opcja=9
-userid=$(id -u)
-delay_time=4
 system_info_file=$(tempfile)
-url=http://corecontrol.cba.pl/linuxlab.tar
+userid=$(id -u)
 dl_dir=~/repository
 content_dir=~/content
+wybor=9
+delay_time=4
+url=http://corecontrol.cba.pl/linuxlab.tar
 
-function print_menu {
+until [ "$wybor" -eq "0" ]; do
+	case "$wybor" in
+		"1") informacjeOSystemie 
+            ;;
+		"2")clear 
+                    wyswietlInformacje
+            ;;
+		"3") clear
+	             dodajGrupe
+            ;;
+		"4")clear 
+                    dodajUsera
+            ;;
+		"5")clear 
+                    stworzKatalog
+            ;;
+
+		"0") wyjdz
+            ;;
+
+	esac
+    rysujMenu
+    read -n1 -s wybor
+done
+
+function rysujMenu {
 clear
 
 if [ $userid -eq 0 ]; then
@@ -34,7 +59,6 @@ EOF
 
 wyjdz () { rm $system_info_file; exit 0; }
 
-# =================================== system info ========================================
 function informacjeOSystemie {
 
     test -f $system_info_file && echo "Usuniecie istniejacego pliku ${system_info_file}";
@@ -80,9 +104,92 @@ function wyswietlInformacje {
     fi
 
 }
-# =================================== system info ========================================
 
-# =================================== grupa /user ========================================
+function pustaScierzka {
+    
+    [ -d "$1" ] || {
+        echo "Tworzenie katalogu $1";
+        mkdir "$1";
+        return 0;
+    }
+
+    if [ "$(ls -A "$1")" ]; then
+        return 1
+    else
+        return 0
+    fi
+}
+
+function stworzKatalog {
+
+    pustaScierzka $dl_dir
+    if [ $? -ne 0 ]; then
+        read -p "Katalog $dl_dir nie jest pusty. Usunąc go? [Y/N]: " wybor
+
+        case "$wybor" in
+		[yY]) rm -rf $dl_dir
+            echo "Tworzenie katalogu $dl_dir"
+            mkdir $dl_dir
+            ;;
+		*) return 1
+            ;;
+    	esac
+    fi
+
+    output_file=${dl_dir}/plik.tar
+    wget $url -O $output_file &>/dev/null
+    cd $dl_dir; tar -xf $output_file
+    pracujWKatalgou "${dl_dir}/linuxlab"
+}
+
+function pracujWKatalgou {
+
+    test -d "$1" || { return 1; }
+
+    katalogi_file="${1}/katalogi.txt"
+
+    if [ -f $katalogi_file ]
+    then
+        mkdir "$content_dir" &>/dev/null
+        if [ $? -ne 0 ] && [ "$(ls -A "$content_dir")" ]; then
+            read -p "Katalog ${content_dir} nie jest pusty. Usunąc go? [T/N]: " wybor
+
+            case "$wybor" in
+            [tT]) rm -rf $content_dir
+                echo "Tworzenie katalog $content_dir"
+                mkdir $content_dir
+                ;;
+            *) return 1
+                ;;
+            esac
+
+        fi
+
+        katalogi=$(cat $katalogi_file | sed -e "s/\r//g")
+
+        echo "Tworzenie struktury katalogów"
+
+        for k in $(echo -e "$katalogi")
+        do
+            mkdir -p ${content_dir}/${k}
+        done
+
+        echo "Przenoszenie plików"
+    
+	for f in $(ls ${1}/download)
+        do
+            name="${f%.*}"
+
+            katalog=$(echo -n "$katalogi" | grep -E "${name}$")
+            mv ${1}/download/$f ${content_dir}/${katalog}
+            echo "${1}/download/$f -> ${content_dir}/${katalog}"
+        done
+        sleep $delay_time
+    else
+        false
+    fi
+}
+
 
 function instniejacaGrupa {
     awk -F: '{print $1}' /etc/group| grep -w $1 &>/dev/null
@@ -150,121 +257,5 @@ function dodajUsera {
     fi
 
 }
-
-# =================================== grupa /user ========================================
-
-# =================================== parsowanie pliku====================================
-
-function pustaScierzka {
-    
-    [ -d "$1" ] || {
-        echo "Tworzenie katalogu $1";
-        mkdir "$1";
-        return 0;
-    }
-
-    if [ "$(ls -A "$1")" ]; then
-        return 1
-    else
-        return 0
-    fi
-}
-
-function pracujWKatalgou {
-
-    test -d "$1" || { return 1; }
-
-    katalogi_file="${1}/katalogi.txt"
-
-    if [ -f $katalogi_file ]
-    then
-        mkdir "$content_dir" &>/dev/null
-        if [ $? -ne 0 ] && [ "$(ls -A "$content_dir")" ]; then
-            read -p "Katalog ${content_dir} nie jest pusty. Usunąc go? [T/N]: " wybor
-
-            case "$wybor" in
-            [tT]) rm -rf $content_dir
-                echo "Tworzenie katalog $content_dir"
-                mkdir $content_dir
-                ;;
-            *) return 1
-                ;;
-            esac
-
-        fi
-
-        katalogi=$(cat $katalogi_file | sed -e "s/\r//g")
-
-        echo "Tworzenie struktury katalogów"
-
-        for k in $(echo -e "$katalogi")
-        do
-            mkdir -p ${content_dir}/${k}
-        done
-
-        echo "Przenoszenie plików"
-    
-	for f in $(ls ${1}/download)
-        do
-            name="${f%.*}"
-
-            katalog=$(echo -n "$katalogi" | grep -E "${name}$")
-            mv ${1}/download/$f ${content_dir}/${katalog}
-            echo "${1}/download/$f -> ${content_dir}/${katalog}"
-        done
-        sleep $delay_time
-    else
-        false
-    fi
-}
-
-function stworzKatalog {
-
-    pustaScierzka $dl_dir
-    if [ $? -ne 0 ]; then
-        read -p "Katalog $dl_dir nie jest pusty. Usunąc go? [Y/N]: " wybor
-
-        case "$wybor" in
-		[yY]) rm -rf $dl_dir
-            echo "Tworzenie katalogu $dl_dir"
-            mkdir $dl_dir
-            ;;
-		*) return 1
-            ;;
-    	esac
-    fi
-
-    output_file=${dl_dir}/plik.tar
-    wget $url -O $output_file &>/dev/null
-    cd $dl_dir; tar -xf $output_file
-    pracujWKatalgou "${dl_dir}/linuxlab"
-}
-
-# =================================== parsowanie pliku====================================
-
-until [ "$opcja" -eq "0" ]; do
-	case "$opcja" in
-		"1") informacjeOSystemie 
-            ;;
-		"2")clear 
-                    wyswietlInformacje
-            ;;
-		"3") clear
-	             dodajGrupe
-            ;;
-		"4")clear 
-                    dodajUsera
-            ;;
-		"5")clear 
-                    stworzKatalog
-            ;;
-
-		"0") wyjdz
-            ;;
-
-	esac
-    print_menu
-    read -n1 -s opcja
-done
 
 wyjdz
