@@ -242,13 +242,17 @@ until [ "$opcja" -eq "0" ]; do
 	case "$opcja" in
 		"1") informacjeOSystemie 
             ;;
-		"2") wyswietlInformacje
+		"2")clear 
+                    wyswietlInformacje
             ;;
-		"3") dodajGrupe
+		"3") clear
+	             dodajGrupe
             ;;
-		"4") dodajUsera
+		"4")clear 
+                    dodajUsera
             ;;
-		"5") stworzKatalog
+		"5")clear 
+                    stworzKatalog
             ;;
 
 		"0") wyjdz
