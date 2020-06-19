@@ -127,10 +127,10 @@ function pracujWKatalgou {
     then
         mkdir "$content_dir" &>/dev/null
         if [ $? -ne 0 ] && [ "$(ls -A "$content_dir")" ]; then
-            read -p "Katalog ${content_dir} nie jest pusty. Usunąc go? [T/N]: " wybor
+            read -p "Katalog ${content_dir} nie jest pusty. Usunąc go? [Y/N]: " wybor
 
             case "$wybor" in
-            [tT]) rm -rf $content_dir
+            [yY]) rm -rf $content_dir
                 echo "Tworzenie katalog $content_dir"
                 mkdir $content_dir
                 ;;
