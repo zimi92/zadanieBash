@@ -240,17 +240,22 @@ function stworzKatalog {
 
 until [ "$opcja" -eq "0" ]; do
 	case "$opcja" in
-		"1") informacjeOSystemie 
+case "$opcja" in
+		"1") clear 
+			 system_info
             ;;
-		"2") wyswietlInformacje
+		"2") clear
+			 display_info
             ;;
-		"3") dodajGrupe
+		"3") clear
+			 add_group
             ;;
-		"4") dodajUsera
+		"4") clear
+			 add_user
             ;;
-		"5") stworzKatalog
+		"5") clear
+			 do_file
             ;;
-
 		"0") wyjdz
             ;;
 
