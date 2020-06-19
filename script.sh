@@ -27,7 +27,7 @@ echo $system_info_file
 0 - Opuszczenie skryptu         
 *************************************
 
-Wybierz opcje [1,2,3,4,5 lub 0] >
+Wybierz opcje [1,2,3,4,5,6 lub 0] >
 EOF
 
 }
@@ -193,9 +193,10 @@ function dodajGrupe {
     fi
 }
 
-function szukajWkatalogu{
+function szukajWkatalogu {
 	read -p "podaj szukana fraze " fraza
-	echo rgrep $fraza .
+	echo $(rgrep $fraza .)
+	sleep $delay_time
 }
 
 function dodajUsera {
@@ -254,9 +255,9 @@ until [ "$wybor" -eq "0" ]; do
 		"5")clear 
                     stworzKatalog
             ;;
-		"6" clear
-					szukajWkatalogu
-
+                "6") clear
+		    szukajWkatalogu
+		    ;;
 		"0") wyjdz
             ;;
 
