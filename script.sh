@@ -8,31 +8,6 @@ wybor=9
 delay_time=4
 url=http://corecontrol.cba.pl/linuxlab.tar
 
-until [ "$wybor" -eq "0" ]; do
-	case "$wybor" in
-		"1") informacjeOSystemie 
-            ;;
-		"2")clear 
-                    wyswietlInformacje
-            ;;
-		"3") clear
-	             dodajGrupe
-            ;;
-		"4")clear 
-                    dodajUsera
-            ;;
-		"5")clear 
-                    stworzKatalog
-            ;;
-
-		"0") wyjdz
-            ;;
-
-	esac
-    rysujMenu
-    read -n1 -s wybor
-done
-
 function rysujMenu {
 clear
 
@@ -257,5 +232,30 @@ function dodajUsera {
     fi
 
 }
+
+until [ "$wybor" -eq "0" ]; do
+	case "$wybor" in
+		"1") informacjeOSystemie 
+            ;;
+		"2")clear 
+                    wyswietlInformacje
+            ;;
+		"3") clear
+	             dodajGrupe
+            ;;
+		"4")clear 
+                    dodajUsera
+            ;;
+		"5")clear 
+                    stworzKatalog
+            ;;
+
+		"0") wyjdz
+            ;;
+
+	esac
+    rysujMenu
+    read -n1 -s wybor
+done
 
 wyjdz
