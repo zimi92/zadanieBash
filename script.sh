@@ -18,6 +18,7 @@ root_opts="
 fi
 
 cat <<EOF;
+echo $system_info_file
 *************************************
 1 - Zbierz informacje o systemie  
 2 - Wyswietl zapisane informacje $root_opts
@@ -66,8 +67,11 @@ EOF
 }
 
 function wyswietlInformacje {
-
-    if [ -f $system_info_file ]; then
+    if [ ! -s $system_info_file ]; then
+	echo "plik jest pusty"
+        sleep 1
+        return 0
+    elif [ -f $system_info_file ]; then
         cat $system_info_file
         sleep $delay_time
     else
